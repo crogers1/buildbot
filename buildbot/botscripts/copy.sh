@@ -1,27 +1,23 @@
 #!/bin/bash
 
-#
-#	After a successful build, create a unique build directory and copy installer.iso and 
-#	packages.main into the directory to be accessed later.
-#
+BUILDID=$1
+BRANCH=$2	# Unused for now
 
-#umask 0022
-#BUILD_DIR='build-'`cat /tmp/build_num`
-#cp build/openxt/build-output/openxt-dev--master/iso/installer.iso /var/www/openxt/installer.iso
-#tar cvf build/openxt/build-output/openxt-dev--master/repository/packages.main.tar build/openxt/build-output/openxt-dev--master/repository/packages.main
-#gzip build/openxt/build-output/openxt-dev--master/repository/packages.main.tar
-#mkdir /var/www/openxt/$BUILD_DIR
-#cp build/openxt/build-output/openxt-dev--master/iso/installer.iso /var/www/openxt/$BUILD_DIR
-#cp build/openxt/build-output/openxt-dev--master/repository/packages.main.tar.gz /var/www/openxt/$BUILD_DIR
-
-BUILDNUM=$1
-BRANCH=$2
 umask 0022
-rsync -aR build/openxt/build-output output/$BUILD_DIR
-#cp build/openxt/build-output/openxt-dev--master/iso/installer.iso output/$BUILD_DIR/installer.iso
-#tar -C build/openxt/build-output/openxt-dev--master/repository/ -cvf packages.main.tar packages.main
-#if [ ! -e 'packages.main.tar.gz' ]; 
-#then
-#	gzip packages.main.tar;
-#fi
-#mv packages.main.tar.gz output/$BUILD_DIR
+cd build/openxt
+cp git_heads build-output/ext-dev-${BUILDID}-master/git_heads
+./do_build.sh -i $BUILDID -s xctools,ship,extra_pkgs,copy,packages_tree
+ret=$?
+if [ $ret -ne 0 ]; then
+	echo Failed
+	exit $ret
+fi
+echo The build is done
+#date=`date +%s`
+#mkdir /home/build/${date}
+#cp build/openxt/build-output/openxt-dev--master/iso/installer.iso /home/build/${date}/installer.iso
+
+rm -rf /home/storage/build/last_build
+mv build /home/storage/build/last_build
+#rm -rf build
+

@@ -1,12 +1,12 @@
 #!/bin/bash
-#
-#	Iterate through the list of openxt github mirrors and create/update a set of local 
-#	mirrors.
-#
 
+BUILDID=$1
+
+rm -rf /tmp/git_heads_$BUILDID
 for i in git/*.git; do
-    echo "Fetching `basename $i`..."
+    echo -n "Fetching `basename $i`: "
     cd $i
-    git fetch --all
+    git fetch --all > /dev/null 2>&1
+    git log -1 --pretty='tformat:%H'
     cd - > /dev/null
-done
+done | tee /tmp/git_heads_$BUILDID

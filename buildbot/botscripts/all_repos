@@ -1,5 +1,6 @@
 blktap
 bootage
+bvt
 dm-agent
 dm-wrapper
 fbtap
@@ -19,9 +20,7 @@ msi-installer
 network
 ocaml
 openxt
-polmod-example
 pv-linux-drivers
-qemu-dm
 resized
 sdk
 seabios
