@@ -648,8 +648,7 @@ class ForceScheduler(base.BaseScheduler):
         layers = []
         for i in range(int(kwargs['num_layers'][0])):
             if (kwargs['layer'+str(i)][0] != '') and (kwargs['lrepo'+str(i)][0] != '') and (kwargs['lbranch'+str(i)][0] != ''):
-                layer_string = kwargs['layer'+str(i)][0]+':'+kwargs['lrepo'+str(i)][0]+':'+
-                                kwargs['lbranch'+str(i)][0]
+                layer_string = kwargs['layer'+str(i)][0]+':'+kwargs['lrepo'+str(i)][0]+':'+kwargs['lbranch'+str(i)][0]
                 layers.append(layer_string)
         
         properties['layers'] = ','.join(layers)
