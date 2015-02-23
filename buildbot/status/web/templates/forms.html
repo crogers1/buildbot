@@ -183,7 +183,7 @@
 
             $(add_button).click(function(ele) {
                 ele.preventDefault();
-                $(wrapper).append('<div>Layer Name:<input type="text" name="layer'+x+'"/> Layer Repository:<input type="text" name="lrepo'+x+'"/><a href="#" class="remove_field">Remove</a></div>');
+                $(wrapper).append('<div>Layer Name:<input type="text" name="layer'+x+'"/> Layer Repository:<input type="text" name="lrepo'+x+'"/>Layer Branch:<input type="text" name="lbranch'+x+'"/><a href="#" class="remove_field">Remove</a></div>');
                 x++;
                 $(num_layers).val(x);
             });
@@ -195,7 +195,7 @@
     <div class="input_fields">
         <button class="add_field_button" type="button">Add More Layer fields</button>
         <div><input type="hidden" id="num_layers" name="num_layers" value="1"></div>
-        <div>Layer Name:<input type="text" name="layer0"> Layer Repository:<input type="text" name="lrepo0"></div>
+        <div>Layer Name:<input type="text" name="layer0"> Layer Repository:<input type="text" name="lrepo0">Layer Branch:<input type="text" name="lbranch0"></div>
 
     </div>
 
