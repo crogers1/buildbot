@@ -653,10 +653,9 @@ class ForceScheduler(base.BaseScheduler):
         
         properties['layers'] = ','.join(layers)
         real_properties = Properties()
-        f = open('/tmp/overrides', 'w')
-        f.truncate()
         revdict = {}
         urldict = {}
+        repo_overrides = ""
         for pname, pvalue in properties.items():
             real_properties.setProperty(pname, pvalue, "Force Build Form")
             if ('url' in pname) and pvalue:
@@ -664,11 +663,9 @@ class ForceScheduler(base.BaseScheduler):
                 urldict[name] = (name,pvalue)
         keys = urldict.keys()
         for key in keys:
-            f.write(urldict[key][0] + ',' + urldict[key][1] + '\n')
+            repo_overrides = repo_overrides+urldict[key][0] + ':' + urldict[key][1]+','
+        real_properties.setProperty('repos', repo_overrides, "Force Build Form")
                 
- 
-        f.close()
-
         defer.returnValue((real_properties, changeids, sourcestamps))
 
     @defer.inlineCallbacks
