@@ -51,8 +51,8 @@ if [[ $LAYERS != 'None' ]];
 then
 	../../engage_layers.sh $LAYERS
 fi
-../../engage_overrides.sh
-../../engage_srcrevs.sh $BRANCH
+#../../engage_overrides.sh
+../../engage_srcrevs.sh $BRANCH 
 ./do_build.sh -i $BUILDID | tee build.log
 ret=${PIPESTATUS[0]}
 cd -

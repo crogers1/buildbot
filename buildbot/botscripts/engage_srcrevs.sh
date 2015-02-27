@@ -1,31 +1,69 @@
-#!/bin/bash
+#!/bin/bash -ex
 
 BRANCH=$1
+OVERRIDES=$2
+OFS=$IFS
+IFS=','
 
+function do_overrides () {
+	name=$1
+	gitr=$2
+	branch=$3
+
+	srcrev="$( git ls-remote git://$gitr/$name.git $branch | cut -f1 )";
+	files=`grep -ilrF $name'.git' build/repos/xenclient-oe/`
+	for file in $files;
+	do
+		recipe_nm="${file##*/}" #Strip leading path
+		short_nm="${recipe_nm%_*}" #Strip "_git.bb"
+		short_nm="${short_nm%.*}" #Strip ".bb"
+		if [ $short_nm == "dm-agent" ] || [ $short_nm == "dm-wrapper" ];
+   		then 
+        	echo "SRCREV_pn-$short_nm-stubdom=\"$srcrev\"" >> build/conf/local.conf;
+	    fi  
+        #We've cloned into xenclient-oe already.
+    	if [ ! $name == "xenclient-oe" ];
+	    then
+			if [ $gitr == "github.com/openxt" ];
+			then
+	            #Add the overriden variable for the recipe to local.conf
+            	echo "SRCREV_pn-$short_nm=\"$srcrev\"" >> build/conf/local.conf
+			else
+            	echo "SRCREV_pn-$short_nm=\"$srcrev\"" >> build/conf/local.conf
+            	echo "OPENXT_GIT_REPO_pn-$short_nm=\"$gitr\"" >> build/conf/local.conf
+			fi
+        fi
+	done
+
+}
+
+function do_srcrev_rec () {
+	name=$1
+	gitr=$2
+	branch=$3
+
+	srcrev="$( git ls-remote git://$gitr/$name.git $branch | cut -f1 )";
+	echo $name':'$srcrev >> srcrevs
+}
+
+#Override all upstream repos first, then do custom repos
 while read repos ;
 do
-	SRCREV="$( git ls-remote git://github.com/openxt/$repos.git $BRANCH | cut -f1 )";
-	FILES=`grep -ilrF $repos'.git' build/repos/xenclient-oe/`
-	echo $repos":"$SRCREV >> srcrevs
-	for file in $FILES;
-	do
-		NAME="${file##*/}" #Strip leading path
-		SHORTNM="${NAME%_*}" #Strip "_git.bb"
-		SHORTNM="${SHORTNM%.*}" #Strip ".bb"
-		#These recipes don't have the .git repo in their file, add them explicitly
-		if [ $SHORTNM == "dm-agent" ] || [ $SHORTNM == "dm-wrapper" ];
-		then
-			echo "SRCREV_pn-$SHORTNM-stubdom=\"$SRCREV\"" >> build/conf/local.conf;
-		fi
-		#We've cloned into xenclient-oe already.
-		if [ ! $repos == "xenclient-oe" ];
-		then
-			#Add the overriden variable for the recipe to local.conf
-			echo "SRCREV_pn-$SHORTNM=\"$SRCREV\"" >> build/conf/local.conf 
-		fi
-	done
-done < ../../repo.list
-#done < repo.list
+	do_overrides $repos github.com/openxt master
+	if [[ ! $OVERRIDES == *$repos* ]];
+	then
+		do_srcrev_rec $repos github.com/openxt master
+	fi
+done < ../../all_repos
 
+#Room for expansion here, support branches for custom repos.
+for pair in $OVERRIDES;
+do
+	REPO_NAME=`echo $pair | cut -f 1 -d ':'` 
+	REPO_GIT=`echo $pair | cut -f 2 -d ':'`
+	do_overrides $REPO_NAME $REPO_GIT $BRANCH
+	do_srcrev_rec $REPO_NAME $REPO_GIT $BRANCH
+done
 
+IFS=$OFS
 
